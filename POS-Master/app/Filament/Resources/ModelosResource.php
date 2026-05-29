@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\TextInput;
+
 
 class ModelosResource extends Resource
 {
@@ -23,7 +25,16 @@ class ModelosResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('id_produto')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('marca')
+                    ->label('marca')
+                    ->required(),
+
+                TextInput::make('modelo')
+                    ->label('modelo')
+                    ->required(),
             ]);
     }
 
@@ -31,13 +42,26 @@ class ModelosResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('id_produto')
+                    ->numeric()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('marca')
+                    ->label('Marca')
+                    ->sortable()
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('modelo')
+                    ->label('Modelo')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

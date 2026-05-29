@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Fornecedor;
+use App\Models\Fornecedores;
 use Illuminate\Database\Eloquent\Model;
 
 class Produto extends Model
@@ -13,6 +13,6 @@ class Produto extends Model
 
     public function fornecedor()
     {
-        return $this->belongsTo(Fornecedor::class, 'fornecedor_id');
+        return $this->belongsTo(Fornecedores::class, 'fornecedor_id');
     }
 }

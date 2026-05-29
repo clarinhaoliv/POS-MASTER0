@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class UsuariosResource extends Resource
 {
@@ -23,7 +24,26 @@ class UsuariosResource extends Resource
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('nome')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('senha')
+                    ->password() 
+                    ->revealable() 
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                    ->required(fn (string $context): bool => $context === 'create')
+                    ->dehydrated(fn ($state) => filled($state)) 
+                    ->maxLength(255),
+                Forms\Components\Select::make('cargo')
+                    ->options([
+                        'admin' => 'Administrador',
+                        'gerente' => 'Gerente',
+                        'supervisora' => 'Supervisora',
+                        ])
+                    ->required()
             ]);
     }
 
@@ -31,13 +51,45 @@ class UsuariosResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('nome')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('cargo')
+                    ->badge() 
+                    ->color(fn (string $state): string => match ($state) {
+                        'admin' => 'danger',
+                        'gerente' => 'warning',
+                        'supervisora' => 'warning',
+                        default => 'success',
+                    })
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Criado em')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                // Filtro rápido por cargo, caso queira
+                Tables\Filters\SelectFilter::make('cargo')
+                    ->options([
+                        'admin' => 'Administrador',
+                        'gerente' => 'Gerente',
+                        'supervisora' => 'Supervisora',
+                    ]),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
